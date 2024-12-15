@@ -76,7 +76,7 @@ resource "kubernetes_horizontal_pod_autoscaler_v2" "hpa" {
     scale_target_ref {
       api_version = "apps/v1"
       kind        = "Deployment"
-      name        = "tech-challenge-api"
+      name        = "tech-challenge-deployment"
     }
 
     min_replicas = 1
@@ -201,12 +201,13 @@ resource "kubernetes_secret" "api-secrets" {
 
   type = "Opaque"
 
-#verificar a possibilidade de remover esses dados expostos
   data = {
-    POSTGRES_DB       = "postgres"
-    POSTGRES_USER     = "postgres"
-    POSTGRES_PASSWORD = "postgres"
-    USER_TOKEN_SECRET = "MTIz"
+    POSTGRES_DB       = var.postgres_db
+    POSTGRES_USER     = var.postgres_user
+    POSTGRES_PASSWORD = var.postgres_password
+    USER_TOKEN_SECRET = var.user_token_secret
+    COGNITO_CLIENT_ID = var.cognito_client_id
+    COGNITO_USER_POOL_ID = var.cognito_user_pool_id
   }
 
   lifecycle {
@@ -225,7 +226,7 @@ resource "kubernetes_config_map" "general-settings" {
     APP_VERSION                = "1.0.0"
     APP_DOCUMENTATION_ENDPOINT = "/api"
     POSTGRES_PORT              = "5432"
-    POSTGRES_HOST              = "tech-challenge-rds-tf.cjrf4fiwy081.us-east-1.rds.amazonaws.com"
+    POSTGRES_HOST              = var.postgres_host
     USER_TOKEN_EXPIRES_IN      = "900"
     CACHE_SERVICE_HOST         = "redis"
     CACHE_SERVICE_PORT         = "6379"

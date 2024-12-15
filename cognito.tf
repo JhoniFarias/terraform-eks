@@ -27,7 +27,7 @@ resource "aws_cognito_user_pool" "tech-challenge_admin_pool" {
   }
 }
 
-resource "aws_cognito_user_pool_domain" "tech-challenge_domain" {
+resource "aws_cognito_user_pool_domain" "tech-challenge-domain" {
   domain       = "tech-challenge-domain"
   user_pool_id = aws_cognito_user_pool.tech-challenge_admin_pool.id
 }
@@ -51,11 +51,44 @@ resource "aws_cognito_user" "admin_user" {
   attributes = {
     email = "admin@email.com"
   }
-  password   = "Jf#25061998"
+  password   = var.cognito_password_temp
   depends_on = [aws_cognito_user_pool.tech-challenge_admin_pool]
 }
 
+resource "aws_cognito_user_group" "gp_administradores" {
+  user_pool_id = aws_cognito_user_pool.tech-challenge_admin_pool.id
+  name         = "Administrador"
+}
 
+resource "aws_cognito_user_in_group" "add_user_in_group_adm" {
+  user_pool_id = aws_cognito_user_pool.tech-challenge_admin_pool.id
+  group_name   = aws_cognito_user_group.gp_administradores.name
+  username     = aws_cognito_user.admin_user.username
+}
+
+
+
+
+resource "aws_cognito_user" "prepline_user" {
+  user_pool_id = aws_cognito_user_pool.tech-challenge_admin_pool.id
+  username     = "cozinha@email.com"
+  attributes = {
+    email = "cozinha@email.com"
+  }
+  password   = var.cognito_password_temp
+  depends_on = [aws_cognito_user_pool.tech-challenge_admin_pool]
+}
+
+resource "aws_cognito_user_group" "gp_cozinha" {
+  user_pool_id = aws_cognito_user_pool.tech-challenge_admin_pool.id
+  name         = "Cozinha"
+}
+
+resource "aws_cognito_user_in_group" "add_user_in_group_cozinha" {
+  user_pool_id = aws_cognito_user_pool.tech-challenge_admin_pool.id
+  group_name   = aws_cognito_user_group.gp_cozinha.name
+  username     = aws_cognito_user.prepline_user.username
+}
 
 
 output "cognito_client_id" {
